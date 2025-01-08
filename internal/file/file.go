@@ -1,23 +1,20 @@
 package file
 
 import (
-	"errors"
+	"github.com/bmatcuk/doublestar/v4"
 	"io/ioutil"
-	"path/filepath"
 )
 
 func CollectFiles(patterns []string) ([]string, error) {
-	var result []string
+	var results []string
 	for _, p := range patterns {
-		matches, err := filepath.Glob(p)
+		matches, err := doublestar.FilepathGlob(p)
 		if err != nil {
-			return nil, errors.New("invalid pattern: " + p)
+			return nil, err
 		}
-		for _, m := range matches {
-			result = append(result, m)
-		}
+		results = append(results, matches...)
 	}
-	return result, nil
+	return results, nil
 }
 
 func ReadFileLines(path string) ([]string, error) {

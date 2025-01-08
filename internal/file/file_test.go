@@ -49,3 +49,35 @@ func TestCollectFiles(t *testing.T) {
 		t.Errorf("CollectFiles() = %v, want %v", got, want)
 	}
 }
+
+func TestCollectFilesRecursive(t *testing.T) {
+	tmpDir, err := ioutil.TempDir("", "recursive_test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tmpDir)
+
+	subDir := filepath.Join(tmpDir, "sub")
+	if err := os.Mkdir(subDir, 0755); err != nil {
+		t.Fatal(err)
+	}
+
+	files := []string{
+		filepath.Join(tmpDir, "main.go"),
+		filepath.Join(subDir, "sub.go"),
+	}
+	for _, f := range files {
+		if err := ioutil.WriteFile(f, []byte("content"), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	got, err := CollectFiles([]string{filepath.Join(tmpDir, "**/*.go")})
+	if err != nil {
+		t.Fatalf("CollectFiles() error: %v", err)
+	}
+
+	if len(got) != 2 {
+		t.Errorf("wanted 2 files, got %d", len(got))
+	}
+}
